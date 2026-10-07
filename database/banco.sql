@@ -1,5 +1,4 @@
 CREATE DATABASE cidades_mais;
-
 USE cidades_mais;
 
 CREATE TABLE cidadao (
@@ -29,6 +28,7 @@ CREATE TABLE prefeitura (
 
 CREATE TABLE problema (
     id INT PRIMARY KEY AUTO_INCREMENT,
+    cidadao_id INT NOT NULL,
     titulo VARCHAR(150) NOT NULL,
     descricao TEXT NOT NULL,
     imagem_url VARCHAR(255),
@@ -38,11 +38,14 @@ CREATE TABLE problema (
     estado CHAR(2) NOT NULL,
     latitude DECIMAL(10,7),
     longitude DECIMAL(10,7),
-    criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (cidadao_id) REFERENCES cidadao(id)
+
 );
 
 INSERT INTO problema
 (
+    cidadao_id,
     titulo,
     descricao,
     imagem_url,
@@ -50,10 +53,12 @@ INSERT INTO problema
     bairro,
     cidade,
     estado
-)
-VALUES
 
+)
+
+VALUES
 (
+    1,
     'Buraco profundo provocando acidentes no cruzamento',
     'Rua Teodoro Sampaio c/ Rodrigo Coutinho. A falta de sinalização tem causado acidentes com pedestres e motociclistas.',
     'img/buraco.png',
@@ -64,6 +69,7 @@ VALUES
 ),
 
 (
+    1,
     'Falta de iluminação na praça',
     'Lâmpada queimada deixa parte da praça escura durante a noite.',
     'img/pracaEscura.png',
@@ -74,6 +80,7 @@ VALUES
 ),
 
 (
+    1,
     'Ponto irregular de entulho e descarte de móveis',
     'Descarte frequente de móveis e outros materiais em área pública.',
     'img/entulio.png',
@@ -84,6 +91,7 @@ VALUES
 ),
 
 (
+    1,
     'Tampa de bueiro quebrada',
     'Estrutura danificada oferece risco para pedestres e veículos.',
     'img/boeiro.png',
@@ -91,9 +99,11 @@ VALUES
     'Santana',
     'São Paulo',
     'SP'
+
 ),
 
 (
+    1,
     'Galhos secos próximos à rede elétrica',
     'Galhos secos estavam próximos à fiação e apresentavam risco para a região.',
     'img/homemAlgumaCoisa.png',
@@ -104,6 +114,7 @@ VALUES
 ),
 
 (
+    1,
     'Faixa de pedestres desgastada',
     'A sinalização da faixa está apagada e dificulta a travessia no local.',
     'img/faixa.png',
