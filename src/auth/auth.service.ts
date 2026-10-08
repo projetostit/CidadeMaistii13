@@ -53,7 +53,7 @@ export class AuthService {
 
     const senhaHash = await bcrypt.hash(dados.senha, 10);
 
-    await this.db.query(
+    const [resultado] = await this.db.query(
       'INSERT INTO cidadao (nome, email, senha_hash, cep, bairro, cidade, estado) VALUES (?, ?, ?, ?, ?, ?, ?)',
       [
         dados.nome,
@@ -64,6 +64,17 @@ export class AuthService {
         endereco.localidade,
         endereco.uf,
       ],
+    );
+
+    // id do cidadão que acabou de ser criado
+    const idNovo = (resultado as any).insertId;
+
+    // copia os 6 problemas modelo para o novo cidadão
+    await this.db.query(
+      `INSERT INTO problema (cidadao_id, titulo, descricao, imagem_url, endereco, bairro, cidade, estado)
+       SELECT ?, titulo, descricao, imagem_url, endereco, bairro, cidade, estado
+       FROM problema WHERE cidadao_id IS NULL`,
+      [idNovo],
     );
 
     return { mensagem: 'Cadastro feito!' };
@@ -113,7 +124,7 @@ export class AuthService {
     }
   }
 
-  async perfil(cabecalho: string) {
+   async perfil(cabecalho: string) {
     const id = await this.pegarIdDoToken(cabecalho);
 
     const [lista] = await this.db.query(
@@ -121,7 +132,14 @@ export class AuthService {
       [id],
     );
 
-    return (lista as any[])[0];
+    const usuario = (lista as any[])[0];
+
+    // se o id do token não existe no banco, recusa
+    if (!usuario) {
+      throw new UnauthorizedException('Usuário não encontrado');
+    }
+
+    return usuario;
   }
 
   async atualizarPerfil(cabecalho: string, dados: AtualizarPerfilDto) {

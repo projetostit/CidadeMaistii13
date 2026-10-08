@@ -1,4 +1,42 @@
 // ======================================================
+// FUNÇÕES AJUDANTES (LOGIN)
+// ======================================================
+
+// monta o cabeçalho com o token para mandar ao back-end
+function pegarCabecalhoToken() {
+    return { Authorization: "Bearer " + localStorage.getItem("token") };
+}
+
+// apaga o token e manda para o login
+function irParaLogin() {
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
+}
+
+
+// ======================================================
+// LOGIN OBRIGATÓRIO NO LINK "DENÚNCIAS" DO HEADER
+// ======================================================
+
+// qualquer link para painelcidadao.html só funciona se tiver login feito
+document.querySelectorAll('a[href="painelcidadao.html"]').forEach((link) => {
+
+    link.addEventListener("click", (evento) => {
+
+        if (!localStorage.getItem("token")) {
+
+            // cancela a ida para o painel
+            evento.preventDefault();
+
+            alert("Faça login para ver as denúncias.");
+
+            window.location.href = "login.html";
+        }
+    });
+});
+
+
+// ======================================================
 // MENU MOBILE
 // ======================================================
 
@@ -381,6 +419,45 @@ if (inputSenha && inputConfirmar && erroSenha) {
     inputConfirmar.addEventListener('input', conferirSenhas);
 }
 
+// ======================================================
+// VALIDAÇÃO DE PREFEITURA
+// ======================================================
+
+// e-mail de prefeitura termina em .gov.br
+function emailDePrefeitura(email) {
+    return email.trim().toLowerCase().endsWith(".gov.br");
+}
+
+// confere se o CNPJ existe (14 números + 2 dígitos verificadores)
+function validarCnpj(valor) {
+    const cnpj = valor.replace(/\D/g, "");
+
+    // precisa ter 14 números e não pode ser tudo igual (ex: 11111111111111)
+    if (cnpj.length !== 14 || /^(\d)\1+$/.test(cnpj)) {
+        return false;
+    }
+
+    function calcularDigito(base) {
+        const pesos = base.length === 12
+            ? [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+            : [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+
+        let soma = 0;
+
+        for (let i = 0; i < pesos.length; i++) {
+            soma += Number(base[i]) * pesos[i];
+        }
+
+        const resto = soma % 11;
+
+        return resto < 2 ? 0 : 11 - resto;
+    }
+
+    const digito1 = calcularDigito(cnpj.slice(0, 12));
+    const digito2 = calcularDigito(cnpj.slice(0, 13));
+
+    return digito1 === Number(cnpj[12]) && digito2 === Number(cnpj[13]);
+}
 
 // ======================================================
 // CADASTRO
@@ -403,7 +480,23 @@ if (formCadastro) {
         }
 
         if (btnPrefeitura.classList.contains('ativo')) {
-            alert('Cadastro de prefeitura ainda não está pronto');
+
+            const emailPref = document.getElementById('email_pref').value;
+            const cnpjPref = document.getElementById('cnpj').value;
+            const erroPref = document.getElementById('erro_prefeitura');
+
+            if (!emailDePrefeitura(emailPref)) {
+                erroPref.textContent = 'Este não é um e-mail de prefeitura. Use o e-mail institucional (terminado em .gov.br).';
+                return;
+            }
+
+            if (!validarCnpj(cnpjPref)) {
+                erroPref.textContent = 'Este CNPJ não é válido. Confira o CNPJ da prefeitura.';
+                return;
+            }
+
+            erroPref.textContent = '';
+            alert('Dados Inválidos!');
             return;
         }
 
@@ -600,12 +693,27 @@ if (tituloOcorrencia) {
     const parametros = new URLSearchParams(window.location.search);
     const id = parametros.get("id");
 
-    if (!id) {
+    if (!localStorage.getItem("token")) {
+
+        // sem login, não pode ver a ocorrência
+        window.location.href = "login.html";
+
+    } else if (!id) {
+
         tituloOcorrencia.textContent = "Ocorrência não encontrada";
+
     } else {
 
-        fetch(`http://localhost:3000/problemas/${id}`)
+        fetch(`http://localhost:3000/problemas/${id}`, {
+            headers: pegarCabecalhoToken(),
+        })
             .then(async (resposta) => {
+
+                // token vencido ou inválido
+                if (resposta.status === 401) {
+                    irParaLogin();
+                    return;
+                }
 
                 if (!resposta.ok) {
                     throw new Error("Erro ao buscar ocorrência");
@@ -615,6 +723,10 @@ if (tituloOcorrencia) {
             })
 
             .then((problema) => {
+
+                if (!problema) {
+                    return;
+                }
 
                 // Título
                 document.querySelector("#titulo_ocorrencia").textContent =
@@ -685,9 +797,23 @@ if (listaDemandas) {
 
     async function carregarDenuncias() {
 
+        // sem login, não pode ver o painel
+        if (!localStorage.getItem("token")) {
+            window.location.href = "login.html";
+            return;
+        }
+
         try {
 
-            const resposta = await fetch("http://localhost:3000/problemas");
+            const resposta = await fetch("http://localhost:3000/problemas", {
+                headers: pegarCabecalhoToken(),
+            });
+
+            // token vencido ou inválido
+            if (resposta.status === 401) {
+                irParaLogin();
+                return;
+            }
 
             if (!resposta.ok) {
                 throw new Error("Erro ao buscar denúncias");
@@ -726,7 +852,7 @@ if (listaDemandas) {
 
 
                 // ======================================================
-                // STATUS
+                // STATUS (vem do banco)
                 // ======================================================
 
                 const status = document.createElement("span");
@@ -734,7 +860,7 @@ if (listaDemandas) {
                 status.className =
                     "status_badge_painelcidadao status_andamento_painelcidadao";
 
-                status.textContent = "Em andamento";
+                status.textContent = problema.status;
 
 
                 divImagem.appendChild(imagem);
@@ -854,9 +980,16 @@ if (botaoDelete) {
             const resposta = await fetch(
                 `http://localhost:3000/problemas/${id}`,
                 {
-                    method: "DELETE"
+                    method: "DELETE",
+                    headers: pegarCabecalhoToken(),
                 }
             );
+
+            // token vencido ou inválido
+            if (resposta.status === 401) {
+                irParaLogin();
+                return;
+            }
 
             const dados = await resposta.json();
 
@@ -876,6 +1009,41 @@ if (botaoDelete) {
             console.error("Erro ao excluir denúncia:", erro);
 
             alert("Não foi possível excluir a denúncia.");
+        }
+    });
+}
+
+function alternarTipoConta(tipo) {
+    const ehCidadao = tipo === "cidadao";
+
+    if (btnCidadao) {
+        btnCidadao.classList.toggle("ativo", ehCidadao);
+    }
+
+    if (btnPrefeitura) {
+        btnPrefeitura.classList.toggle("ativo", !ehCidadao);
+    }
+
+    if (camposCidadao) {
+        camposCidadao.style.display = ehCidadao ? "block" : "none";
+    }
+
+    if (camposPrefeitura) {
+        camposPrefeitura.style.display = ehCidadao ? "none" : "block";
+    }
+
+    // campo escondido não pode ser obrigatório (senão o navegador trava o envio)
+    ["name", "email", "cep"].forEach((id) => {
+        const campo = document.getElementById(id);
+        if (campo) {
+            campo.required = ehCidadao;
+        }
+    });
+
+    ["orgao", "cnpj", "email_pref"].forEach((id) => {
+        const campo = document.getElementById(id);
+        if (campo) {
+            campo.required = !ehCidadao;
         }
     });
 }
