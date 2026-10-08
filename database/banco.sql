@@ -1,4 +1,4 @@
-CREATE DATABASE IF NOT EXISTS cidades_mais;
+CREATE DATABASE cidades_mais;
 USE cidades_mais;
 
 CREATE TABLE cidadao (
