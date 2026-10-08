@@ -16,12 +16,14 @@ export class AuthService {
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT),
     user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
+    password: process.env.DB_PASS,
     database: process.env.DB_NAME,
   });
 
   constructor(private jwtService: JwtService) {}
 
+
+  // BUSCAR CEP
   async buscarCep(cep: string) {
     const resposta = await fetch('https://viacep.com.br/ws/' + cep + '/json/');
 
@@ -38,6 +40,7 @@ export class AuthService {
     return endereco;
   }
 
+// REGISTRAR PROBLEMA
   async register(dados: RegisterDto) {
     const [lista] = await this.db.query(
       'SELECT id FROM cidadao WHERE email = ?',
@@ -78,6 +81,8 @@ export class AuthService {
     return { mensagem: 'Cadastro feito!' };
   }
 
+// FAZER LOGIB
+
   async login(loginDto: LoginDto) {
     const [lista] = await this.db.query(
       'SELECT id, senha_hash FROM cidadao WHERE email = ?',
@@ -106,6 +111,8 @@ export class AuthService {
     };
   }
 
+// JWT
+
   async pegarIdDoToken(cabecalho: string) {
     if (!cabecalho) {
       throw new UnauthorizedException('Faça login');
@@ -120,6 +127,8 @@ export class AuthService {
       throw new UnauthorizedException('Token inválido');
     }
   }
+
+// CARREGAR PERFIL
 
   async perfil(cabecalho: string) {
     const id = await this.pegarIdDoToken(cabecalho);
@@ -138,6 +147,8 @@ export class AuthService {
     return usuario;
   }
 
+
+// UPDATE
   async atualizarPerfil(cabecalho: string, dados: AtualizarPerfilDto) {
     const id = await this.pegarIdDoToken(cabecalho);
 
