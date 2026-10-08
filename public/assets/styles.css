@@ -2669,6 +2669,201 @@ footer p {
 }
 
 
+/* ==========================================
+   CSS DA TELA DE EDITAR OCORRÊNCIA
+   ========================================== */
+
+.pag_normal {
+    padding-top: 100px;
+    padding-bottom: 60px;
+    background-color: #F8FAFC;
+    min-height: 100vh;
+}
+
+.container_editar_ocorrencia {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 16px;
+}
+
+/* Títulos da Seção */
+.cabecalho_secao_editar {
+    margin-bottom: 24px;
+}
+
+.titulo_editar_pagina {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0E121B;
+    margin: 0 0 6px 0;
+}
+
+.subtitulo_editar_pagina {
+    font-size: 14px;
+    color: #64748B;
+    margin: 0;
+}
+
+/* Formulário e Campos */
+.form_editar_ocorrencia {
+    background-color: #ffffff;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 20px 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.grupo_formulario {
+    margin-bottom: 20px;
+}
+
+.label_campo {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0E121B;
+    margin-bottom: 8px;
+}
+
+.input_campo, .textarea_campo {
+    width: 100%;
+    background-color: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: #0E121B;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.input_campo::placeholder, .textarea_campo::placeholder {
+    color: #94A3B8;
+}
+
+.input_campo:focus, .textarea_campo:focus {
+    border-color: #2C6BED;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(44, 107, 237, 0.1);
+}
+
+.textarea_campo {
+    resize: vertical;
+}
+
+/* Bloco de Localização */
+.bloco_localizacao {
+    background-color: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.cabecalho_localizacao {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 14px;
+}
+
+.titulo_com_icone {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.icone_local {
+    color: #2C6BED;
+    font-size: 18px !important;
+    margin-top: 0 !important;
+}
+
+.h3_localizacao {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0E121B;
+    margin: 0;
+}
+
+.cidade_estado_local {
+    font-size: 12px;
+    color: #64748B;
+}
+
+.linha_dupla_inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.campo_cep, .campo_logradouro {
+    width: 100%;
+}
+
+/* Botões de Ação do Formulário */
+.botoes_acao_formulario {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.botao_salvar_alteracoes {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #2C6BED;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 28px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.2s;
+}
+
+.botao_salvar_alteracoes span {
+    font-size: 18px !important;
+    margin-top: 0 !important;
+}
+
+.botao_salvar_alteracoes:hover {
+    background-color: #1d52bc;
+}
+
+/* Rodapé de Exclusão alinhado harmoniosamente */
+.rodape_exclusao {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #F1F5F9;
+}
+
+.link_excluir_ocorrencia {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #EF4444;
+}
+
+.link_excluir_ocorrencia span {
+    font-size: 16px !important;
+    margin-top: 0 !important;
+}
+
+.link_excluir_ocorrencia:hover {
+    text-decoration: underline;
+}
+
+
 /* Tablet pequeno */
 @media (min-width: 480px) {
     /* INDEX */
@@ -2782,6 +2977,17 @@ footer p {
 
     .form_faleconosco {
         padding: 25px 20px;
+    }
+
+
+    /*editar occorrencia*/
+
+    .container_editar_ocorrencia {
+        padding: 24px;
+    }
+    
+    .form_editar_ocorrencia {
+        padding: 24px;
     }
 
 }
@@ -3000,6 +3206,38 @@ footer p {
 
     .form_faleconosco {
         padding: 25px 20px;
+    }
+
+
+    /* editar ocorrencia */
+
+    .titulo_editar_pagina {
+        font-size: 26px;
+    }
+
+    .form_editar_ocorrencia {
+        padding: 32px;
+    }
+
+    .cabecalho_localizacao {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0;
+    }
+
+    .linha_dupla_inputs {
+        flex-direction: row;
+        gap: 16px;
+    }
+
+    .botoes_acao_formulario {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .botao_salvar_alteracoes {
+        width: auto;
     }
 
 
@@ -3433,6 +3671,13 @@ footer p {
         max-width: 650px;
     }
 
+
+    /* editar ocorrencia */
+
+    .container_editar_ocorrencia {
+        max-width: 760px;
+    }
+
 }
 
 
@@ -3536,6 +3781,12 @@ footer p {
         max-width: 680px;
     }
 
+
+    /* editar ocorrencia */
+
+    .container_editar_ocorrencia {
+        max-width: 820px;
+    }
 
 }
 

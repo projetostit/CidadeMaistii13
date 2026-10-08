@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Cidades +</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="assets/styles.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=menu,location_on,delete,save"/>
+        <link rel="shortcut icon" href="img//favicon.ico" type="image/x-icon">
+    </head>
+    <body>
+        <header class="header_index">
+            <div class="header_mobile_index">
+                <div class="logo_name_index">
+                    <img class="logo_cdd_header" src="img/logo_cdd.png" alt="Logo do Cidades+">
+                    <h1 class="h1_index">Cidades<span class="simbolo_mais">+</span></h1>
+                </div>
+                <span class="material-symbols-outlined">menu</span>
+            </div>
+                <nav>
+                    <ul class="menu">
+                        <li class="pg_atual"><a href="index.html">Início</a></li>
+                        <li><a href="como-funciona.html">Como funciona</a></li>
+                        <li><a href="sobre_nos.html">Sobre nós</a></li>
+                        <li><a href="painelcidadao.html">Denúncias</a></li>
+                        <li class="entrar_botao_index"><a href="login.html">Entrar</a></li>
+                        <li class="baixar_agora"><a href="#">Baixar agora</a></li>
+                    </ul>
+                </nav>
+        </header>
+        <main class="pag_normal">
+            <div class="container_editar_ocorrencia">
+
+                <!-- Título e Subtítulo -->
+                <div class="cabecalho_secao_editar">
+                    <h2 class="titulo_editar_pagina">Editar Ocorrência</h2>
+                    <p class="subtitulo_editar_pagina">Atualize as informações essenciais deste reporte.</p>
+                </div>
+
+                <!-- Formulário de Edição -->
+                <form class="form_editar_ocorrencia">
+
+                    <!-- Título da Ocorrência -->
+                    <div class="grupo_formulario">
+                        <label for="titulo_ocorrencia" class="label_campo">Título da Ocorrência *</label>
+                        <input type="text" id="titulo_ocorrencia" class="input_campo" placeholder="Ex.: Buraco profundo provocando acidentes no cruzamento" required>
+                    </div>
+
+                    <!-- Descrição -->
+                    <div class="grupo_formulario">
+                        <label for="descricao_ocorrencia" class="label_campo">Descrição *</label>
+                        <textarea id="descricao_ocorrencia" class="textarea_campo" rows="4" required placeholder="Ex.: Descreva a ocorrência detalhadamente..."></textarea>
+                    </div>
+
+                    <!-- Bloco de Endereço e Localização -->
+                    <div class="bloco_localizacao">
+                        <div class="cabecalho_localizacao">
+                            <div class="titulo_com_icone">
+                                <span class="material-symbols-outlined icone_local">location_on</span>
+                                <h3 class="h3_localizacao">Endereço e Localização</h3>
+                            </div>
+                            <span class="cidade_estado_local">Pinheiros, São Paulo - SP</span>
+                        </div>
+
+                        <div class="linha_dupla_inputs">
+                            <div class="grupo_formulario campo_cep">
+                                <label for="cep_ocorrencia" class="label_campo">CEP *</label>
+                                <input type="text" id="cep_ocorrencia" class="input_campo" placeholder="Ex.: 05408-000">
+                            </div>
+                            <div class="grupo_formulario campo_logradouro">
+                                <label for="logradouro_ocorrencia" class="label_campo">Logradouro e Número *</label>
+                                <input type="text" id="logradouro_ocorrencia" class="input_campo" placeholder="Ex.: Rua Teodoro Sampaio, 1420">
+                            </div>
+                        </div>
+
+                        <div class="grupo_formulario">
+                            <label for="complemento_ocorrencia" class="label_campo">Complemento / Ponto de Referência</label>
+                            <input type="text" id="complemento_ocorrencia" class="input_campo" placeholder="Ex.: Próximo ao cruzamento com a Rua Fradique Coutinho">
+                        </div>
+                    </div>
+
+                    <!-- Botões de Ação Inferiores -->
+                    <div class="botoes_acao_formulario">
+                        <button type="submit" class="botao_salvar_alteracoes">
+                            <span class="material-symbols-outlined">save</span>
+                            Salvar Alterações
+                        </button>
+                    </div>
+
+                    <!-- Ação de Exclusão -->
+                    <div class="rodape_exclusao">
+                        <a href="#" class="link_excluir_ocorrencia">
+                            <span class="material-symbols-outlined">delete</span>
+                            Excluir ocorrência
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </main>
+        <footer>  
+            <div class="cont-footer">
+                <section class="footer_section">
+                    <div class="footer_sobre">
+                        <div class="footer_logo">
+                            <img class="logo_footer_img" src="img/logo_cdd.png" alt="Logo do Cidades+">
+                            <h3>Cidades<span class="simbolo_mais">+</span></h3>
+                        </div>
+                        <p>Transformando a gestão urbana através da colaboração direta entre cidadãos e poder público.</p>
+                    </div>
+                    <div>
+                        <h3>App</h3>
+                        <p><a href="#">Baixar para Android</a></p>
+                    </div>
+                    <div>
+                        <h3>Institucional</h3>
+                        <p><a href="sobre_nos.html">Sobre nós</a></p>
+                        <p><a href="como-funciona.html">Como Funciona</a></p>
+                    </div>
+                    <div>
+                        <h3>Social</h3>
+                            <p>
+                                <a href="https://www.youtube.com/@CidadesMais" target="_blank"><img class="icons_footer_img" src="img/youtube_icon.png" alt="icone youtube"></a>
+                                <a href="https://www.instagram.com/cidadesmais13/" target="_blank"><img class="icons_footer_img" src="img/Instagram_icon.png" alt="icon Instagram_icon"></a>
+                            </p>
+                    </div>
+                </section>
+                <div class="fim_footer">
+                    <p>&copy; 2026 Cidades+ | Todos os direitos reservados | <a href="#">Política de Privacidade | </a><a href="#">Termos de Serviço</a></p>
+                </div>
+            </div>
+        </footer>
+        <script src="assets/script.js"></script>
+    </body>
+</html>
