@@ -42,14 +42,22 @@ export class ProblemaController {
     return this.problemaService.criar(dados, idCidadao);
   }
 
-  @Put(':id')
+    @Put(':id')
   async atualizar(
     @Param('id') id: string,
     @Body() dados: any,
     @Headers('authorization') cabecalho: string,
   ) {
     const idCidadao = await this.authService.pegarIdDoToken(cabecalho);
-    return this.problemaService.atualizar(Number(id), dados, idCidadao);
+
+    // só consulta o CEP se a pessoa preencheu
+    let endereco: any = null;
+
+    if (dados.cep) {
+      endereco = await this.authService.buscarCep(dados.cep);
+    }
+
+    return this.problemaService.atualizar(Number(id), dados, endereco, idCidadao);
   }
 
   @Delete(':id')

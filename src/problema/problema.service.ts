@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import * as mysql from 'mysql2/promise';
 
 @Injectable()
@@ -57,11 +57,35 @@ export class ProblemaService {
     return { mensagem: 'Problema criado com sucesso' };
   }
 
-  // ATUALIZAR UMA DENÚNCIA
-  async atualizar(id: number, dados: any, idCidadao: number) {
+    // ATUALIZAR UMA DENÚNCIA (só a do próprio usuário)
+  async atualizar(id: number, dados: any, endereco: any, idCidadao: number) {
+    if (!dados.titulo || !dados.descricao) {
+      throw new BadRequestException('Preencha título e descrição');
+    }
+
     const [resultado] = await this.db.query(
-      'UPDATE problema SET titulo = ?, descricao = ?, status = ? WHERE id = ? AND cidadao_id = ?',
-      [dados.titulo, dados.descricao, dados.status, id, idCidadao],
+      `UPDATE problema
+       SET titulo = ?,
+           descricao = ?,
+           complemento = ?,
+           endereco = COALESCE(NULLIF(?, ''), endereco),
+           cep = COALESCE(?, cep),
+           bairro = COALESCE(?, bairro),
+           cidade = COALESCE(?, cidade),
+           estado = COALESCE(?, estado)
+       WHERE id = ? AND cidadao_id = ?`,
+      [
+        dados.titulo,
+        dados.descricao,
+        dados.complemento || null,
+        endereco ? endereco.logradouro : null,
+        endereco ? dados.cep : null,
+        endereco ? endereco.bairro : null,
+        endereco ? endereco.localidade : null,
+        endereco ? endereco.uf : null,
+        id,
+        idCidadao,
+      ],
     );
 
     const resultadoUpdate = resultado as any;

@@ -683,10 +683,47 @@ if (tokenSalvo && document.querySelector('#form_login')) {
 }
 
 // ======================================================
+// AJUDANTES DA OCORRÊNCIA
+// ======================================================
+
+// "reportado" vira "Reportado"
+function capitalizar(texto) {
+    return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
+// calcula "Reportado há X" a partir da data do banco
+function tempoAtras(dataTexto) {
+
+    const segundos = Math.floor((Date.now() - new Date(dataTexto).getTime()) / 1000);
+
+    if (isNaN(segundos) || segundos < 60) {
+        return "Reportado agora há pouco";
+    }
+
+    const minutos = Math.floor(segundos / 60);
+
+    if (minutos < 60) {
+        return `Reportado há ${minutos} min`;
+    }
+
+    const horas = Math.floor(minutos / 60);
+
+    if (horas < 24) {
+        return `Reportado há ${horas} h`;
+    }
+
+    const dias = Math.floor(horas / 24);
+
+    return `Reportado há ${dias} ${dias === 1 ? "dia" : "dias"}`;
+}
+
+
+// ======================================================
 // OCORRÊNCIA
 // ======================================================
 
-const tituloOcorrencia = document.querySelector("#titulo_ocorrencia");
+// só roda na página de ocorrência (a de edição também tem #titulo_ocorrencia)
+const tituloOcorrencia = document.querySelector("#local_ocorrencia")? document.querySelector("#titulo_ocorrencia"): null;
 
 if (tituloOcorrencia) {
 
@@ -703,6 +740,20 @@ if (tituloOcorrencia) {
         tituloOcorrencia.textContent = "Ocorrência não encontrada";
 
     } else {
+
+                // botão "Editar denúncia" leva o id da ocorrência
+        const botaoEditar = document.querySelector("#btn_editar");
+
+        if (botaoEditar) {
+
+            const destinoEditar = `editarocorrencia.html?id=${id}`;
+
+            botaoEditar.closest("a").href = destinoEditar;
+
+            botaoEditar.addEventListener("click", () => {
+                window.location.href = destinoEditar;
+            });
+        }
 
         fetch(`http://localhost:3000/problemas/${id}`, {
             headers: pegarCabecalhoToken(),
@@ -723,6 +774,25 @@ if (tituloOcorrencia) {
             })
 
             .then((problema) => {
+
+                                // Status (vem do banco)
+                document.querySelector("#status_ocorrencia").textContent =
+                    capitalizar(problema.status);
+
+                // Tempo desde a denúncia
+                document.querySelector("#tempo_ocorrencia").textContent =
+                    tempoAtras(problema.criado_em);
+
+                // Complemento
+                const complementoTexto = document.querySelector("#complemento_texto");
+
+                complementoTexto.textContent = problema.complemento
+                    ? `Complemento: ${problema.complemento}`
+                    : "";
+
+                // Título da aba do navegador
+                document.title =
+                    `Ocorrência #URB-${String(problema.id).padStart(4, "0")} | Cidades+`;
 
                 if (!problema) {
                     return;
@@ -1046,4 +1116,126 @@ function alternarTipoConta(tipo) {
             campo.required = !ehCidadao;
         }
     });
+}
+
+// ======================================================
+// EDITAR OCORRÊNCIA
+// ======================================================
+
+const formEditar = document.querySelector(".form_editar_ocorrencia");
+
+if (formEditar) {
+
+    const parametrosEditar = new URLSearchParams(window.location.search);
+    const idEditar = parametrosEditar.get("id");
+
+    if (!localStorage.getItem("token")) {
+
+        // sem login, não pode editar
+        window.location.href = "login.html";
+
+    } else if (!idEditar) {
+
+        alert("Ocorrência não encontrada.");
+        window.location.href = "painelcidadao.html";
+
+    } else {
+
+        // 1. PREENCHE O FORMULÁRIO COM OS DADOS ATUAIS
+        fetch(`http://localhost:3000/problemas/${idEditar}`, {
+            headers: pegarCabecalhoToken(),
+        })
+            .then(async (resposta) => {
+
+                if (resposta.status === 401) {
+                    irParaLogin();
+                    return;
+                }
+
+                if (!resposta.ok) {
+                    throw new Error("Erro ao buscar ocorrência");
+                }
+
+                return resposta.json();
+            })
+
+            .then((problema) => {
+
+                if (!problema) {
+                    return;
+                }
+
+                document.getElementById("titulo_ocorrencia").value = problema.titulo;
+                document.getElementById("descricao_ocorrencia").value = problema.descricao;
+                document.getElementById("cep_ocorrencia").value = problema.cep || "";
+                document.getElementById("complemento_ocorrencia").value = problema.complemento || "";
+
+                document.querySelector(".cidade_estado_local").textContent =
+                    `${problema.bairro}, ${problema.cidade} - ${problema.estado}`;
+            })
+
+            .catch((erro) => {
+                console.error("Erro ao carregar ocorrência:", erro);
+                alert("Não foi possível carregar esta ocorrência.");
+                window.location.href = "painelcidadao.html";
+            });
+
+
+        // 2. SALVA AS ALTERAÇÕES
+        formEditar.addEventListener("submit", async (evento) => {
+
+            evento.preventDefault();
+
+            // deixa só números no CEP (tira hífen e espaços)
+            const cep = document.getElementById("cep_ocorrencia").value.replace(/\D/g, "");
+
+            // o CEP é opcional, mas se vier preenchido precisa ter 8 dígitos
+            if (cep !== "" && cep.length !== 8) {
+                alert("O CEP deve ter 8 dígitos");
+                return;
+            }
+
+            try {
+
+                const resposta = await fetch(
+                    `http://localhost:3000/problemas/${idEditar}`,
+                    {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            ...pegarCabecalhoToken(),
+                        },
+                        body: JSON.stringify({
+                            titulo: document.getElementById("titulo_ocorrencia").value.trim(),
+                            descricao: document.getElementById("descricao_ocorrencia").value.trim(),
+                            cep: cep,
+                            complemento: document.getElementById("complemento_ocorrencia").value.trim(),
+                        }),
+                    }
+                );
+
+                if (resposta.status === 401) {
+                    irParaLogin();
+                    return;
+                }
+
+                const dados = await resposta.json();
+
+                if (!resposta.ok) {
+                    alert(Array.isArray(dados.message) ? dados.message[0] : dados.message);
+                    return;
+                }
+
+                alert("Denúncia atualizada com sucesso!");
+
+                // volta para a ocorrência já com os dados novos
+                window.location.href = `ocorrencia.html?id=${idEditar}`;
+
+            } catch (erro) {
+
+                console.error("Erro ao atualizar denúncia:", erro);
+                alert("Não foi possível atualizar a denúncia.");
+            }
+        });
+    }
 }

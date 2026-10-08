@@ -33,6 +33,8 @@ CREATE TABLE problema (
     descricao TEXT NOT NULL,
     imagem_url VARCHAR(255),
     endereco VARCHAR(200) NOT NULL,
+    cep VARCHAR(8) NULL,
+    complemento VARCHAR(150) NULL,
     bairro VARCHAR(80) NOT NULL,
     cidade VARCHAR(80) NOT NULL,
     estado CHAR(2) NOT NULL,
