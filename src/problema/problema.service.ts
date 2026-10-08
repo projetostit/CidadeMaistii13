@@ -11,7 +11,6 @@ export class ProblemaService {
     database: process.env.DB_NAME,
   });
 
-  // BUSCAR TODAS AS DENÚNCIAS DO USUÁRIO LOGADO
   async buscarTodos(idCidadao: number) {
     const [resultado] = await this.db.query(
       'SELECT * FROM problema WHERE cidadao_id = ? ORDER BY criado_em DESC',
@@ -21,7 +20,6 @@ export class ProblemaService {
     return resultado;
   }
 
-  // BUSCAR UMA DENÚNCIA PELO ID
   async buscarPorId(id: number, idCidadao: number) {
     const [resultado] = await this.db.query(
       'SELECT * FROM problema WHERE id = ? AND cidadao_id = ?',
@@ -37,7 +35,6 @@ export class ProblemaService {
     return problemas[0];
   }
 
-  // CRIAR UMA DENÚNCIA
   async criar(dados: any, idCidadao: number) {
     await this.db.query(
       `INSERT INTO problema (cidadao_id, titulo, descricao, imagem_url, endereco, bairro, cidade, estado)
@@ -57,7 +54,6 @@ export class ProblemaService {
     return { mensagem: 'Problema criado com sucesso' };
   }
 
-    // ATUALIZAR UMA DENÚNCIA (só a do próprio usuário)
   async atualizar(id: number, dados: any, endereco: any, idCidadao: number) {
     if (!dados.titulo || !dados.descricao) {
       throw new BadRequestException('Preencha título e descrição');
@@ -97,7 +93,6 @@ export class ProblemaService {
     return { mensagem: 'Problema atualizado com sucesso' };
   }
 
-  // EXCLUIR UMA DENÚNCIA (só a do próprio usuário)
   async excluir(id: number, idCidadao: number) {
     const [resultado] = await this.db.query(
       'DELETE FROM problema WHERE id = ? AND cidadao_id = ?',

@@ -22,7 +22,6 @@ export class AuthService {
 
   constructor(private jwtService: JwtService) {}
 
-  // consulta o CEP no ViaCEP e devolve o endereço
   async buscarCep(cep: string) {
     const resposta = await fetch('https://viacep.com.br/ws/' + cep + '/json/');
 
@@ -66,10 +65,9 @@ export class AuthService {
       ],
     );
 
-    // id do cidadão que acabou de ser criado
     const idNovo = (resultado as any).insertId;
 
-    // copia os 6 problemas modelo para o novo cidadão
+    // copia os problemas modelo para o novo cidadão
     await this.db.query(
       `INSERT INTO problema (cidadao_id, titulo, descricao, imagem_url, endereco, bairro, cidade, estado)
        SELECT ?, titulo, descricao, imagem_url, endereco, bairro, cidade, estado
@@ -108,7 +106,6 @@ export class AuthService {
     };
   }
 
-  // confere o token e devolve o id do usuário
   async pegarIdDoToken(cabecalho: string) {
     if (!cabecalho) {
       throw new UnauthorizedException('Faça login');
@@ -124,7 +121,7 @@ export class AuthService {
     }
   }
 
-   async perfil(cabecalho: string) {
+  async perfil(cabecalho: string) {
     const id = await this.pegarIdDoToken(cabecalho);
 
     const [lista] = await this.db.query(
@@ -134,7 +131,6 @@ export class AuthService {
 
     const usuario = (lista as any[])[0];
 
-    // se o id do token não existe no banco, recusa
     if (!usuario) {
       throw new UnauthorizedException('Usuário não encontrado');
     }
@@ -145,7 +141,6 @@ export class AuthService {
   async atualizarPerfil(cabecalho: string, dados: AtualizarPerfilDto) {
     const id = await this.pegarIdDoToken(cabecalho);
 
-    // o e-mail não pode ser de OUTRA pessoa (<> significa "diferente de")
     const [outros] = await this.db.query(
       'SELECT id FROM cidadao WHERE email = ? AND id <> ?',
       [dados.email, id],
@@ -155,7 +150,6 @@ export class AuthService {
       throw new BadRequestException('Este e-mail já está em uso');
     }
 
-    // busca bairro, cidade e estado do CEP informado
     const endereco = await this.buscarCep(dados.cep);
 
     await this.db.query(
