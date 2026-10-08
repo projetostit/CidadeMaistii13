@@ -1,49 +1,25 @@
-// ======================================================
-// FUNÇÕES AJUDANTES (LOGIN)
-// ======================================================
-
-// monta o cabeçalho com o token para mandar ao back-end
 function pegarCabecalhoToken() {
     return { Authorization: "Bearer " + localStorage.getItem("token") };
 }
 
-// apaga o token e manda para o login
 function irParaLogin() {
     localStorage.removeItem("token");
     window.location.href = "login.html";
 }
 
-
-// ======================================================
-// LOGIN OBRIGATÓRIO NO LINK "DENÚNCIAS" DO HEADER
-// ======================================================
-
-// qualquer link para painelcidadao.html só funciona se tiver login feito
+// link "Denúncias" exige login
 document.querySelectorAll('a[href="painelcidadao.html"]').forEach((link) => {
-
     link.addEventListener("click", (evento) => {
-
         if (!localStorage.getItem("token")) {
-
-            // cancela a ida para o painel
             evento.preventDefault();
-
             alert("Faça login para ver as denúncias.");
-
             window.location.href = "login.html";
         }
     });
 });
 
-
-// ======================================================
-// MENU MOBILE
-// ======================================================
-
-const menuIcon = document.querySelector(
-    ".header_mobile_index .material-symbols-outlined"
-);
-
+// menu mobile
+const menuIcon = document.querySelector(".header_mobile_index .material-symbols-outlined");
 const menu = document.querySelector(".menu");
 
 if (menuIcon && menu) {
@@ -52,6 +28,7 @@ if (menuIcon && menu) {
     });
 }
 
+// faq
 const perguntas = document.querySelectorAll(".caixa_de_perguntas");
 
 perguntas.forEach((pergunta) => {
@@ -78,14 +55,9 @@ perguntas.forEach((pergunta) => {
     });
 });
 
-
-// ======================================================
-// ESCOLHA DO TIPO DE CONTA
-// ======================================================
-
+// tipo de conta
 const btnCidadao = document.getElementById("btn_cidadao");
 const btnPrefeitura = document.getElementById("btn_prefeitura");
-
 const camposCidadao = document.getElementById("campos_cidadao");
 const camposPrefeitura = document.getElementById("campos_prefeitura");
 
@@ -137,19 +109,11 @@ if (btnPrefeitura) {
     });
 }
 
-
-// ======================================================
-// FORMULÁRIO DE PERFIL
-// ======================================================
-
+// formulário de perfil
 const formPerfil = document.getElementById("form_perfil");
 
 if (formPerfil) {
-
-    const campos = [
-        ...formPerfil.querySelectorAll("input:not([readonly])")
-    ];
-
+    const campos = [...formPerfil.querySelectorAll("input:not([readonly])")];
     const btnSalvar = document.getElementById("btnSalvarPerfil");
     const btnDescartar = document.getElementById("btnDescartarPerfil");
     const mensagemStatus = document.getElementById("status_form_perfil");
@@ -157,7 +121,6 @@ if (formPerfil) {
     let valoresSalvos = campos.map((campo) => campo.value);
 
     function atualizarBotoes() {
-
         const houveMudanca = campos.some((campo, i) => {
             return campo.value.trim() !== valoresSalvos[i];
         });
@@ -171,31 +134,23 @@ if (formPerfil) {
         }
     }
 
-    // usada depois que os dados do banco são preenchidos na tela
     window.guardarValoresAtuais = function () {
         valoresSalvos = campos.map((campo) => campo.value.trim());
         atualizarBotoes();
     };
 
     campos.forEach((campo) => {
-
         campo.addEventListener("input", () => {
-
             if (mensagemStatus) {
                 mensagemStatus.textContent = "";
             }
 
             atualizarBotoes();
         });
-
     });
 
-
-    // DESCARTAR
     if (btnDescartar) {
-
         btnDescartar.addEventListener("click", () => {
-
             campos.forEach((campo, i) => {
                 campo.value = valoresSalvos[i];
             });
@@ -206,13 +161,9 @@ if (formPerfil) {
 
             atualizarBotoes();
         });
-
     }
 
-
-    // SALVAR (salva no banco)
     formPerfil.addEventListener("submit", async (evento) => {
-
         evento.preventDefault();
 
         if (!formPerfil.checkValidity()) {
@@ -220,7 +171,6 @@ if (formPerfil) {
             return;
         }
 
-        // deixa só números no CEP (tira hífen e espaços)
         const cep = document.getElementById("gestor").value.replace(/\D/g, "");
 
         if (cep.length !== 8) {
@@ -253,20 +203,14 @@ if (formPerfil) {
             return;
         }
 
-        // recarrega os dados do banco (atualiza o topo e os botões)
         await carregarPerfil();
         mensagemStatus.textContent = "Alterações salvas.";
     });
 
-
     atualizarBotoes();
 }
 
-
-// ======================================================
-// MODAL DE TERMOS
-// ======================================================
-
+// modal de termos
 const modal = document.getElementById("modalTermos");
 const abrir = document.getElementById("abrirModal");
 const fechar = document.getElementById("fecharModal");
@@ -275,82 +219,48 @@ const checkbox = document.getElementById("checkboxTermos");
 const btnSubmit = document.getElementById("btnSubmit");
 const form = document.querySelector(".form_cadastrar");
 
-
-// ABRIR MODAL
 if (abrir && modal) {
-
     abrir.addEventListener("click", (e) => {
-
         e.preventDefault();
-
         modal.style.display = "block";
     });
 }
 
-
-// FECHAR MODAL
 if (fechar && modal) {
-
     fechar.addEventListener("click", () => {
-
         modal.style.display = "none";
     });
 }
 
-
-// CLICAR FORA
 if (modal) {
-
     window.addEventListener("click", (e) => {
-
         if (e.target === modal) {
             modal.style.display = "none";
         }
     });
 }
 
-
-// ======================================================
-// ACEITAR TERMOS
-// ======================================================
-
 function verificarCheckbox() {
-
     if (btnSubmit && checkbox) {
         btnSubmit.disabled = !checkbox.checked;
     }
 }
 
-
 if (btnAceito && checkbox && modal) {
-
     btnAceito.addEventListener("click", () => {
-
         checkbox.checked = true;
-
         localStorage.setItem("termosAceitos", "true");
-
         modal.style.display = "none";
-
         verificarCheckbox();
     });
 }
 
-
 if (checkbox) {
-
     checkbox.addEventListener("change", verificarCheckbox);
 }
 
-
-// ======================================================
-// CARREGAMENTO
-// ======================================================
-
 window.addEventListener("load", () => {
-
     if (checkbox) {
-
         if (localStorage.getItem("termosAceitos")) {
             checkbox.checked = true;
         }
@@ -359,11 +269,7 @@ window.addEventListener("load", () => {
     }
 });
 
-
-// ======================================================
-// VALIDAÇÃO AO VIVO (CADASTRO)
-// ======================================================
-
+// validação ao vivo do cadastro
 const inputCep = document.getElementById('cep');
 const inputSenha = document.getElementById('senha');
 const inputConfirmar = document.getElementById('confirm_senha');
@@ -380,7 +286,6 @@ function limparErro(input, aviso) {
     aviso.textContent = '';
 }
 
-// CEP: só números, vermelho se passar de 8 dígitos
 if (inputCep && erroCep) {
     inputCep.addEventListener('input', () => {
         inputCep.value = inputCep.value.replace(/\D/g, '');
@@ -392,7 +297,6 @@ if (inputCep && erroCep) {
         }
     });
 
-    // ao sair do campo, também avisa se tiver menos de 8
     inputCep.addEventListener('blur', () => {
         if (inputCep.value !== '' && inputCep.value.length !== 8) {
             marcarErro(inputCep, erroCep, 'O CEP deve ter 8 dígitos');
@@ -400,7 +304,6 @@ if (inputCep && erroCep) {
     });
 }
 
-// Senhas: vermelho se forem diferentes
 function conferirSenhas() {
     if (inputConfirmar.value === '') {
         limparErro(inputConfirmar, erroSenha);
@@ -419,20 +322,14 @@ if (inputSenha && inputConfirmar && erroSenha) {
     inputConfirmar.addEventListener('input', conferirSenhas);
 }
 
-// ======================================================
-// VALIDAÇÃO DE PREFEITURA
-// ======================================================
-
-// e-mail de prefeitura termina em .gov.br
+// validação de prefeitura
 function emailDePrefeitura(email) {
     return email.trim().toLowerCase().endsWith(".gov.br");
 }
 
-// confere se o CNPJ existe (14 números + 2 dígitos verificadores)
 function validarCnpj(valor) {
     const cnpj = valor.replace(/\D/g, "");
 
-    // precisa ter 14 números e não pode ser tudo igual (ex: 11111111111111)
     if (cnpj.length !== 14 || /^(\d)\1+$/.test(cnpj)) {
         return false;
     }
@@ -459,17 +356,13 @@ function validarCnpj(valor) {
     return digito1 === Number(cnpj[12]) && digito2 === Number(cnpj[13]);
 }
 
-// ======================================================
-// CADASTRO
-// ======================================================
-
+// cadastro
 const formCadastro = document.querySelector('.form_cadastrar');
 
 if (formCadastro) {
     formCadastro.addEventListener('submit', async function (evento) {
         evento.preventDefault();
 
-        // se tiver campo vermelho, não envia
         if (document.querySelector('.campo_erro')) {
             return;
         }
@@ -480,7 +373,6 @@ if (formCadastro) {
         }
 
         if (btnPrefeitura.classList.contains('ativo')) {
-
             const emailPref = document.getElementById('email_pref').value;
             const cnpjPref = document.getElementById('cnpj').value;
             const erroPref = document.getElementById('erro_prefeitura');
@@ -538,11 +430,7 @@ if (formCadastro) {
     });
 }
 
-
-// ======================================================
-// LOGIN
-// ======================================================
-
+// login
 const formLogin = document.querySelector('#form_login');
 
 if (formLogin) {
@@ -575,11 +463,7 @@ if (formLogin) {
     });
 }
 
-
-// ======================================================
-// CARREGAR PERFIL
-// ======================================================
-
+// perfil
 async function carregarPerfil() {
     const token = localStorage.getItem('token');
 
@@ -600,21 +484,17 @@ async function carregarPerfil() {
 
     const usuario = await resposta.json();
 
-    // campos do formulário
     document.getElementById('orgao').value = usuario.nome;
     document.getElementById('email_institucional').value = usuario.email;
     document.getElementById('gestor').value = usuario.cep || '';
     document.getElementById('cidade').value = usuario.complemento || '';
 
-    // topo da tela: nome grande
     document.getElementById('titulo_prefeitura').textContent = usuario.nome;
 
-    // topo da tela: iniciais (ex: Mariana Costa -> MC)
     const partes = usuario.nome.trim().split(' ');
     const iniciais = partes[0][0] + (partes.length > 1 ? partes[partes.length - 1][0] : '');
     document.querySelector('.avatar_prefeitura').firstChild.textContent = iniciais.toUpperCase();
 
-    // topo da tela: linha de bairro e cidade
     const meta = document.querySelector('.meta_perfil');
     if (usuario.bairro && usuario.cidade) {
         meta.textContent = 'Bairro ' + usuario.bairro + ' · ' + usuario.cidade + ', ' + usuario.estado;
@@ -622,7 +502,6 @@ async function carregarPerfil() {
         meta.textContent = 'Complete seu perfil para receber notificações da sua região';
     }
 
-    // avisa a lógica dos botões que estes são os valores originais
     if (window.guardarValoresAtuais) {
         window.guardarValoresAtuais();
     }
@@ -632,17 +511,12 @@ if (document.getElementById('form_perfil')) {
     carregarPerfil();
 }
 
-
-// ======================================================
-// MENU: LOGADO OU NÃO
-// ======================================================
-
+// menu logado / deslogado
 const tokenSalvo = localStorage.getItem('token');
 const linkEntrar = document.querySelector('.menu a[href*="login.html"]');
 const itemBaixar = document.querySelector('.menu .baixar_agora');
 
 if (tokenSalvo && linkEntrar) {
-    // 1. "Entrar" vira o ícone de usuário
     const itemEntrar = linkEntrar.parentElement;
     itemEntrar.classList.remove('entrar_botao_index', 'entrar_botao_index_atual');
     itemEntrar.classList.add('menu_perfil_logado');
@@ -655,12 +529,10 @@ if (tokenSalvo && linkEntrar) {
         '<path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4.4 0-8 2.2-8 5v1h16v-1c0-2.8-3.6-5-8-5z"/>' +
         '</svg>';
 
-    // 2. esconde o "Baixar agora"
     if (itemBaixar) {
         itemBaixar.style.display = 'none';
     }
 
-    // 3. cria o botão "Sair"
     const itemSair = document.createElement('li');
     itemSair.classList.add('menu_sair');
 
@@ -682,18 +554,12 @@ if (tokenSalvo && document.querySelector('#form_login')) {
     window.location.href = 'perfil_cidadao.html';
 }
 
-// ======================================================
-// AJUDANTES DA OCORRÊNCIA
-// ======================================================
-
-// "reportado" vira "Reportado"
+// ajudantes da ocorrência
 function capitalizar(texto) {
     return texto.charAt(0).toUpperCase() + texto.slice(1);
 }
 
-// calcula "Reportado há X" a partir da data do banco
 function tempoAtras(dataTexto) {
-
     const segundos = Math.floor((Date.now() - new Date(dataTexto).getTime()) / 1000);
 
     if (isNaN(segundos) || segundos < 60) {
@@ -717,35 +583,21 @@ function tempoAtras(dataTexto) {
     return `Reportado há ${dias} ${dias === 1 ? "dia" : "dias"}`;
 }
 
-
-// ======================================================
-// OCORRÊNCIA
-// ======================================================
-
-// só roda na página de ocorrência (a de edição também tem #titulo_ocorrencia)
-const tituloOcorrencia = document.querySelector("#local_ocorrencia")? document.querySelector("#titulo_ocorrencia"): null;
+// página de ocorrência (a de edição também tem #titulo_ocorrencia)
+const tituloOcorrencia = document.querySelector("#local_ocorrencia") ? document.querySelector("#titulo_ocorrencia") : null;
 
 if (tituloOcorrencia) {
-
     const parametros = new URLSearchParams(window.location.search);
     const id = parametros.get("id");
 
     if (!localStorage.getItem("token")) {
-
-        // sem login, não pode ver a ocorrência
         window.location.href = "login.html";
-
     } else if (!id) {
-
         tituloOcorrencia.textContent = "Ocorrência não encontrada";
-
     } else {
-
-                // botão "Editar denúncia" leva o id da ocorrência
         const botaoEditar = document.querySelector("#btn_editar");
 
         if (botaoEditar) {
-
             const destinoEditar = `editarocorrencia.html?id=${id}`;
 
             botaoEditar.closest("a").href = destinoEditar;
@@ -759,8 +611,6 @@ if (tituloOcorrencia) {
             headers: pegarCabecalhoToken(),
         })
             .then(async (resposta) => {
-
-                // token vencido ou inválido
                 if (resposta.status === 401) {
                     irParaLogin();
                     return;
@@ -774,23 +624,18 @@ if (tituloOcorrencia) {
             })
 
             .then((problema) => {
-
-                                // Status (vem do banco)
                 document.querySelector("#status_ocorrencia").textContent =
                     capitalizar(problema.status);
 
-                // Tempo desde a denúncia
                 document.querySelector("#tempo_ocorrencia").textContent =
                     tempoAtras(problema.criado_em);
 
-                // Complemento
                 const complementoTexto = document.querySelector("#complemento_texto");
 
                 complementoTexto.textContent = problema.complemento
                     ? `Complemento: ${problema.complemento}`
                     : "";
 
-                // Título da aba do navegador
                 document.title =
                     `Ocorrência #URB-${String(problema.id).padStart(4, "0")} | Cidades+`;
 
@@ -798,53 +643,41 @@ if (tituloOcorrencia) {
                     return;
                 }
 
-                // Título
                 document.querySelector("#titulo_ocorrencia").textContent =
                     problema.titulo;
 
-                // Localização
                 document.querySelector("#local_ocorrencia").textContent =
                     `${problema.endereco}, ${problema.bairro}`;
 
-                // Imagem
                 document.querySelector("#imagem_ocorrencia").src =
                     problema.imagem_url;
 
-                // Descrição
                 document.querySelector("#descricao_ocorrencia").textContent =
                     problema.descricao;
 
-                // Bairro
                 document.querySelector("#bairro_ocorrencia").textContent =
                     problema.bairro;
 
-                // Endereço
                 document.querySelector("#endereco_ocorrencia").textContent =
                     problema.endereco;
 
-                // Protocolo
                 document.querySelector("#protocolo_ocorrencia").textContent =
                     `#URB-${String(problema.id).padStart(4, "0")}`;
 
-                // Protocolo do topo
                 document.querySelector("#protocolo_navegacao").textContent =
                     `Ocorrência #URB-${String(problema.id).padStart(4, "0")}`;
 
-                // Mapa
                 const enderecoMapa =
                     `${problema.endereco}, ${problema.bairro}, ${problema.cidade}, ${problema.estado}`;
 
                 document.querySelector("#mapa_ocorrencia").src =
                     `https://www.google.com/maps?q=${encodeURIComponent(enderecoMapa)}&output=embed`;
 
-                // Link "Ver no mapa"
                 document.querySelector("#link_mapa_ocorrencia").href =
                     `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(enderecoMapa)}`;
-
             })
 
             .catch((erro) => {
-
                 console.error("Erro:", erro);
 
                 document.querySelector("#titulo_ocorrencia").textContent =
@@ -852,34 +685,25 @@ if (tituloOcorrencia) {
 
                 document.querySelector("#descricao_ocorrencia").textContent =
                     "Não foi possível carregar os dados desta ocorrência.";
-
             });
     }
 }
 
-// ======================================================
-// PAINEL DO CIDADÃO - LISTAR DENÚNCIAS
-// ======================================================
-
+// painel do cidadão
 const listaDemandas = document.querySelector(".lista_demandas_painelcidadao");
 
 if (listaDemandas) {
-
     async function carregarDenuncias() {
-
-        // sem login, não pode ver o painel
         if (!localStorage.getItem("token")) {
             window.location.href = "login.html";
             return;
         }
 
         try {
-
             const resposta = await fetch("http://localhost:3000/problemas", {
                 headers: pegarCabecalhoToken(),
             });
 
-            // token vencido ou inválido
             if (resposta.status === 401) {
                 irParaLogin();
                 return;
@@ -894,140 +718,68 @@ if (listaDemandas) {
             listaDemandas.innerHTML = "";
 
             problemas.forEach((problema) => {
-
                 const link = document.createElement("a");
-
                 link.href = `ocorrencia.html?id=${problema.id}`;
 
-
                 const article = document.createElement("article");
-
                 article.className = "card_demanda_painelcidadao";
 
-
-                // ======================================================
-                // IMAGEM
-                // ======================================================
-
                 const divImagem = document.createElement("div");
-
                 divImagem.className = "imagem_demanda_painelcidadao";
 
-
                 const imagem = document.createElement("img");
-
                 imagem.src = problema.imagem_url;
-
                 imagem.alt = problema.titulo;
 
-
-                // ======================================================
-                // STATUS (vem do banco)
-                // ======================================================
-
                 const status = document.createElement("span");
-
-                status.className =
-                    "status_badge_painelcidadao status_andamento_painelcidadao";
-
+                status.className = "status_badge_painelcidadao status_andamento_painelcidadao";
                 status.textContent = problema.status;
 
-
                 divImagem.appendChild(imagem);
-
                 divImagem.appendChild(status);
 
-
-                // ======================================================
-                // CONTEÚDO
-                // ======================================================
-
                 const divConteudo = document.createElement("div");
-
-                divConteudo.className =
-                    "conteudo_demanda_painelcidadao";
-
-
-                // Bairro
+                divConteudo.className = "conteudo_demanda_painelcidadao";
 
                 const bairro = document.createElement("span");
-
-                bairro.className =
-                    "local_demanda_painelcidadao";
-
+                bairro.className = "local_demanda_painelcidadao";
                 bairro.textContent = problema.bairro;
 
-
-                // Título
-
                 const titulo = document.createElement("h2");
-
-                titulo.className =
-                    "titulo_demanda_painelcidadao";
-
+                titulo.className = "titulo_demanda_painelcidadao";
                 titulo.textContent = problema.titulo;
 
-
-                // Descrição
-
                 const descricao = document.createElement("p");
-
-                descricao.className =
-                    "texto_demanda_painelcidadao";
-
+                descricao.className = "texto_demanda_painelcidadao";
                 descricao.textContent = problema.descricao;
 
-
-                // ======================================================
-                // MONTA O CARD
-                // ======================================================
-
                 divConteudo.appendChild(bairro);
-
                 divConteudo.appendChild(titulo);
-
                 divConteudo.appendChild(descricao);
 
-
                 article.appendChild(divImagem);
-
                 article.appendChild(divConteudo);
 
-
                 link.appendChild(article);
-
                 listaDemandas.appendChild(link);
-
             });
-
         } catch (erro) {
-
             console.error("Erro ao carregar denúncias:", erro);
 
             listaDemandas.innerHTML = `
                 <p>Não foi possível carregar as denúncias.</p>
             `;
-
         }
-
     }
 
-
     carregarDenuncias();
-
 }
 
-// ======================================================
-// EXCLUIR OCORRÊNCIA
-// ======================================================
-
+// excluir ocorrência
 const botaoDelete = document.querySelector("#btn_delete");
 
 if (botaoDelete) {
-
     botaoDelete.addEventListener("click", async () => {
-
-        // Pega o ID da URL
         const parametros = new URLSearchParams(window.location.search);
         const id = parametros.get("id");
 
@@ -1036,26 +788,18 @@ if (botaoDelete) {
             return;
         }
 
-        // Confirma antes de excluir
-        const confirmar = confirm(
-            "Tem certeza que deseja excluir esta denúncia?"
-        );
+        const confirmar = confirm("Tem certeza que deseja excluir esta denúncia?");
 
         if (!confirmar) {
             return;
         }
 
         try {
+            const resposta = await fetch(`http://localhost:3000/problemas/${id}`, {
+                method: "DELETE",
+                headers: pegarCabecalhoToken(),
+            });
 
-            const resposta = await fetch(
-                `http://localhost:3000/problemas/${id}`,
-                {
-                    method: "DELETE",
-                    headers: pegarCabecalhoToken(),
-                }
-            );
-
-            // token vencido ou inválido
             if (resposta.status === 401) {
                 irParaLogin();
                 return;
@@ -1064,20 +808,13 @@ if (botaoDelete) {
             const dados = await resposta.json();
 
             if (!resposta.ok) {
-                throw new Error(
-                    dados.message || "Erro ao excluir denúncia"
-                );
+                throw new Error(dados.message || "Erro ao excluir denúncia");
             }
 
             alert("Denúncia excluída com sucesso!");
-
-            // Volta para o painel
             window.location.href = "painelcidadao.html";
-
         } catch (erro) {
-
             console.error("Erro ao excluir denúncia:", erro);
-
             alert("Não foi possível excluir a denúncia.");
         }
     });
@@ -1102,7 +839,7 @@ function alternarTipoConta(tipo) {
         camposPrefeitura.style.display = ehCidadao ? "none" : "block";
     }
 
-    // campo escondido não pode ser obrigatório (senão o navegador trava o envio)
+    // campo escondido não pode ser obrigatório
     ["name", "email", "cep"].forEach((id) => {
         const campo = document.getElementById(id);
         if (campo) {
@@ -1118,35 +855,24 @@ function alternarTipoConta(tipo) {
     });
 }
 
-// ======================================================
-// EDITAR OCORRÊNCIA
-// ======================================================
-
+// editar ocorrência
 const formEditar = document.querySelector(".form_editar_ocorrencia");
 
 if (formEditar) {
-
     const parametrosEditar = new URLSearchParams(window.location.search);
     const idEditar = parametrosEditar.get("id");
 
     if (!localStorage.getItem("token")) {
-
-        // sem login, não pode editar
         window.location.href = "login.html";
-
     } else if (!idEditar) {
-
         alert("Ocorrência não encontrada.");
         window.location.href = "painelcidadao.html";
-
     } else {
-
-        // 1. PREENCHE O FORMULÁRIO COM OS DADOS ATUAIS
+        // preenche o formulário com os dados atuais
         fetch(`http://localhost:3000/problemas/${idEditar}`, {
             headers: pegarCabecalhoToken(),
         })
             .then(async (resposta) => {
-
                 if (resposta.status === 401) {
                     irParaLogin();
                     return;
@@ -1160,7 +886,6 @@ if (formEditar) {
             })
 
             .then((problema) => {
-
                 if (!problema) {
                     return;
                 }
@@ -1180,39 +905,32 @@ if (formEditar) {
                 window.location.href = "painelcidadao.html";
             });
 
-
-        // 2. SALVA AS ALTERAÇÕES
+        // salva as alterações
         formEditar.addEventListener("submit", async (evento) => {
-
             evento.preventDefault();
 
-            // deixa só números no CEP (tira hífen e espaços)
             const cep = document.getElementById("cep_ocorrencia").value.replace(/\D/g, "");
 
-            // o CEP é opcional, mas se vier preenchido precisa ter 8 dígitos
+            // cep é opcional, mas se vier precisa ter 8 dígitos
             if (cep !== "" && cep.length !== 8) {
                 alert("O CEP deve ter 8 dígitos");
                 return;
             }
 
             try {
-
-                const resposta = await fetch(
-                    `http://localhost:3000/problemas/${idEditar}`,
-                    {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json",
-                            ...pegarCabecalhoToken(),
-                        },
-                        body: JSON.stringify({
-                            titulo: document.getElementById("titulo_ocorrencia").value.trim(),
-                            descricao: document.getElementById("descricao_ocorrencia").value.trim(),
-                            cep: cep,
-                            complemento: document.getElementById("complemento_ocorrencia").value.trim(),
-                        }),
-                    }
-                );
+                const resposta = await fetch(`http://localhost:3000/problemas/${idEditar}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        ...pegarCabecalhoToken(),
+                    },
+                    body: JSON.stringify({
+                        titulo: document.getElementById("titulo_ocorrencia").value.trim(),
+                        descricao: document.getElementById("descricao_ocorrencia").value.trim(),
+                        cep: cep,
+                        complemento: document.getElementById("complemento_ocorrencia").value.trim(),
+                    }),
+                });
 
                 if (resposta.status === 401) {
                     irParaLogin();
@@ -1227,12 +945,8 @@ if (formEditar) {
                 }
 
                 alert("Denúncia atualizada com sucesso!");
-
-                // volta para a ocorrência já com os dados novos
                 window.location.href = `ocorrencia.html?id=${idEditar}`;
-
             } catch (erro) {
-
                 console.error("Erro ao atualizar denúncia:", erro);
                 alert("Não foi possível atualizar a denúncia.");
             }
