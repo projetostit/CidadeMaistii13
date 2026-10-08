@@ -180,7 +180,7 @@ if (formPerfil) {
 
         const token = localStorage.getItem("token");
 
-        const resposta = await fetch("http://localhost:3000/auth/perfil", {
+        const resposta = await fetch("/perfil", {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -413,7 +413,7 @@ if (formCadastro) {
             return;
         }
 
-        const resposta = await fetch('http://localhost:3000/auth/register', {
+        const resposta = await fetch('/cadastrar.html', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nome, email, cep, senha }),
@@ -423,7 +423,7 @@ if (formCadastro) {
 
         if (resposta.ok) {
             alert('Cadastro feito!');
-            window.location.href = 'login.html';
+            window.location.href = '/login.html';
         } else {
             alert(dados.message);
         }
@@ -441,7 +441,7 @@ if (formLogin) {
         const senha = document.querySelector('#senha_login').value;
 
         try {
-            const resposta = await fetch('http://localhost:3000/auth/login', {
+            const resposta = await fetch('/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: email, senha: senha }),
@@ -455,7 +455,7 @@ if (formLogin) {
             }
 
             localStorage.setItem('token', dados.token);
-            window.location.href = 'painelcidadao.html';
+            window.location.href = '/painelcidadao.html';
         } catch (erro) {
             console.error(erro);
             alert('Erro ao conectar com o servidor.');
@@ -472,7 +472,7 @@ async function carregarPerfil() {
         return;
     }
 
-    const resposta = await fetch('http://localhost:3000/auth/perfil', {
+    const resposta = await fetch('/perfil', {
         headers: { Authorization: 'Bearer ' + token },
     });
 
@@ -607,7 +607,7 @@ if (tituloOcorrencia) {
             });
         }
 
-        fetch(`http://localhost:3000/problemas/${id}`, {
+        fetch(`/problemas/${id}`, {
             headers: pegarCabecalhoToken(),
         })
             .then(async (resposta) => {
@@ -700,7 +700,7 @@ if (listaDemandas) {
         }
 
         try {
-            const resposta = await fetch("http://localhost:3000/problemas", {
+            const resposta = await fetch("/problemas", {
                 headers: pegarCabecalhoToken(),
             });
 
@@ -795,7 +795,7 @@ if (botaoDelete) {
         }
 
         try {
-            const resposta = await fetch(`http://localhost:3000/problemas/${id}`, {
+            const resposta = await fetch(`/problemas/${id}`, {
                 method: "DELETE",
                 headers: pegarCabecalhoToken(),
             });
@@ -863,13 +863,13 @@ if (formEditar) {
     const idEditar = parametrosEditar.get("id");
 
     if (!localStorage.getItem("token")) {
-        window.location.href = "login.html";
+        window.location.href = "/login.html";
     } else if (!idEditar) {
         alert("Ocorrência não encontrada.");
         window.location.href = "painelcidadao.html";
     } else {
         // preenche o formulário com os dados atuais
-        fetch(`http://localhost:3000/problemas/${idEditar}`, {
+        fetch(`/problemas/${idEditar}`, {
             headers: pegarCabecalhoToken(),
         })
             .then(async (resposta) => {
@@ -918,7 +918,7 @@ if (formEditar) {
             }
 
             try {
-                const resposta = await fetch(`http://localhost:3000/problemas/${idEditar}`, {
+                const resposta = await fetch(`/problemas/${idEditar}`, {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
