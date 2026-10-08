@@ -413,7 +413,7 @@ if (formCadastro) {
             return;
         }
 
-        const resposta = await fetch('/cadastrar.html', {
+        const resposta = await fetch('https://cidademais.projetostit.com/cadastrar', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ nome, email, cep, senha }),
@@ -441,7 +441,7 @@ if (formLogin) {
         const senha = document.querySelector('#senha_login').value;
 
         try {
-            const resposta = await fetch('/login', {
+            const resposta = await fetch('https://cidademais.projetostit.com/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: email, senha: senha }),

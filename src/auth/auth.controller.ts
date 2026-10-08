@@ -4,11 +4,11 @@ import { RegisterDto } from './dto/registro.dto';
 import { LoginDto } from './dto/login.dto';
 import { AtualizarPerfilDto } from './dto/atualizar-perfil.dto';
 
-@Controller('auth')
+@Controller('')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('register')
+  @Post('cadastrar')
   register(@Body() dados: RegisterDto) {
     return this.authService.register(dados);
   }
