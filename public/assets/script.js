@@ -7,13 +7,364 @@ function irParaLogin() {
     window.location.href = "login.html";
 }
 
+// ==========================================================
+// MODAIS (substituem alert() e confirm())
+// Uso:
+//   await mostrarModal("Mensagem", { tipo: "sucesso" });       // tipos: sucesso | erro | aviso | info
+//   const ok = await mostrarConfirmacao("Tem certeza?");       // true / false
+// Não precisa mexer no HTML nem no CSS: o estilo é injetado aqui.
+// Para trocar as cores, altere as variáveis no começo do CSS abaixo.
+// ==========================================================
+(function injetarEstiloModalAlerta() {
+    if (document.getElementById("estilo_modal_alerta")) {
+        return;
+    }
+
+    const estilo = document.createElement("style");
+    estilo.id = "estilo_modal_alerta";
+    estilo.textContent = `
+        .modal_alerta_fundo {
+            --modal_cor_principal: #0f5fa8;
+            --modal_cor_sucesso: #1b8a4b;
+            --modal_cor_erro: #d23b3b;
+            --modal_cor_aviso: #c98200;
+            --modal_cor_info: #0f5fa8;
+            --modal_cor_texto: #1f2933;
+            --modal_cor_texto_suave: #52606d;
+
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background: rgba(15, 23, 42, 0.55);
+            animation: modal_alerta_fundo_entrar 0.18s ease-out;
+            overflow-y: auto;
+        }
+
+        .modal_alerta_fundo.saindo {
+            opacity: 0;
+            transition: opacity 0.15s ease-in;
+        }
+
+        .modal_alerta_caixa {
+            box-sizing: border-box;
+            width: 100%;
+            max-width: 420px;
+            max-height: calc(100% - 8px);
+            overflow-y: auto;
+            padding: 28px 24px 22px;
+            border-radius: 14px;
+            background: #ffffff;
+            color: var(--modal_cor_texto);
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.3);
+            animation: modal_alerta_caixa_entrar 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+            font-family: inherit;
+        }
+
+        .modal_alerta_icone {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 14px;
+            border-radius: 50%;
+            background: color-mix(in srgb, var(--modal_cor_tipo) 14%, #ffffff);
+            color: var(--modal_cor_tipo);
+        }
+
+        .modal_alerta_icone svg {
+            width: 30px;
+            height: 30px;
+        }
+
+        .modal_alerta_sucesso { --modal_cor_tipo: var(--modal_cor_sucesso); }
+        .modal_alerta_erro    { --modal_cor_tipo: var(--modal_cor_erro); }
+        .modal_alerta_aviso   { --modal_cor_tipo: var(--modal_cor_aviso); }
+        .modal_alerta_info    { --modal_cor_tipo: var(--modal_cor_info); }
+
+        .modal_alerta_titulo {
+            margin: 0 0 8px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            line-height: 1.3;
+            color: var(--modal_cor_texto);
+        }
+
+        .modal_alerta_mensagem {
+            margin: 0 0 22px;
+            font-size: 0.98rem;
+            line-height: 1.5;
+            color: var(--modal_cor_texto_suave);
+            white-space: pre-line;
+            overflow-wrap: anywhere;
+        }
+
+        .modal_alerta_botoes {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .modal_alerta_botao {
+            flex: 1 1 0;
+            min-height: 44px;
+            padding: 10px 18px;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s, transform 0.05s;
+        }
+
+        .modal_alerta_botao:active {
+            transform: scale(0.98);
+        }
+
+        .modal_alerta_botao:focus-visible {
+            outline: 3px solid color-mix(in srgb, var(--modal_cor_principal) 45%, transparent);
+            outline-offset: 2px;
+        }
+
+        .modal_alerta_botao_primario {
+            background: var(--modal_cor_tipo);
+            color: #ffffff;
+        }
+
+        .modal_alerta_botao_primario:hover {
+            filter: brightness(0.92);
+        }
+
+        .modal_alerta_botao_secundario {
+            background: #ffffff;
+            border-color: #cbd2d9;
+            color: var(--modal_cor_texto);
+        }
+
+        .modal_alerta_botao_secundario:hover {
+            background: #f1f4f7;
+        }
+
+        @media (max-width: 480px) {
+            .modal_alerta_fundo {
+                padding: 12px;
+                align-items: flex-end;
+            }
+
+            .modal_alerta_caixa {
+                max-width: none;
+                padding: 24px 18px 18px;
+                border-radius: 16px;
+            }
+
+            .modal_alerta_botoes {
+                flex-direction: column-reverse;
+            }
+
+            .modal_alerta_botao {
+                flex: none;
+                width: 100%;
+            }
+        }
+
+        @keyframes modal_alerta_fundo_entrar {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+
+        @keyframes modal_alerta_caixa_entrar {
+            from { opacity: 0; transform: translateY(14px) scale(0.96); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .modal_alerta_fundo,
+            .modal_alerta_caixa {
+                animation: none;
+            }
+        }
+    `;
+
+    document.head.appendChild(estilo);
+})();
+
+const ICONES_MODAL_ALERTA = {
+    sucesso:
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+    erro:
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+    aviso:
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v6"/><circle cx="12" cy="17" r="0.6" fill="currentColor"/></svg>',
+    info:
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 11v6"/><circle cx="12" cy="7.4" r="0.6" fill="currentColor"/></svg>',
+};
+
+const TITULOS_MODAL_ALERTA = {
+    sucesso: "Tudo certo",
+    erro: "Algo deu errado",
+    aviso: "Atenção",
+    info: "Aviso",
+};
+
+function criarModalAlerta({ mensagem, tipo, titulo, botoes, valorAoDispensar }) {
+    return new Promise((resolve) => {
+        const elementoAnterior = document.activeElement;
+        const textoMensagem = Array.isArray(mensagem) ? mensagem.join("\n") : String(mensagem ?? "");
+        const idBase = "modal_alerta_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+
+        const fundo = document.createElement("div");
+        fundo.className = "modal_alerta_fundo";
+
+        const caixa = document.createElement("div");
+        caixa.className = `modal_alerta_caixa modal_alerta_${tipo}`;
+        caixa.setAttribute("role", "alertdialog");
+        caixa.setAttribute("aria-modal", "true");
+        caixa.setAttribute("aria-labelledby", idBase + "_titulo");
+        caixa.setAttribute("aria-describedby", idBase + "_mensagem");
+
+        const icone = document.createElement("div");
+        icone.className = "modal_alerta_icone";
+        icone.innerHTML = ICONES_MODAL_ALERTA[tipo];
+
+        const tituloElemento = document.createElement("h2");
+        tituloElemento.className = "modal_alerta_titulo";
+        tituloElemento.id = idBase + "_titulo";
+        tituloElemento.textContent = titulo || TITULOS_MODAL_ALERTA[tipo];
+
+        const mensagemElemento = document.createElement("p");
+        mensagemElemento.className = "modal_alerta_mensagem";
+        mensagemElemento.id = idBase + "_mensagem";
+        mensagemElemento.textContent = textoMensagem;
+
+        const areaBotoes = document.createElement("div");
+        areaBotoes.className = "modal_alerta_botoes";
+
+        function fechar(resultado) {
+            document.removeEventListener("keydown", aoPressionarTecla, true);
+
+            fundo.classList.add("saindo");
+            setTimeout(() => {
+                fundo.remove();
+
+                if (!document.querySelector(".modal_alerta_fundo")) {
+                    document.body.style.overflow = "";
+                }
+            }, 150);
+
+            if (elementoAnterior && typeof elementoAnterior.focus === "function") {
+                elementoAnterior.focus();
+            }
+
+            resolve(resultado);
+        }
+
+        const elementosBotao = botoes.map((config) => {
+            const botao = document.createElement("button");
+            botao.type = "button";
+            botao.className =
+                "modal_alerta_botao " +
+                (config.primario ? "modal_alerta_botao_primario" : "modal_alerta_botao_secundario");
+            botao.textContent = config.texto;
+            botao.addEventListener("click", () => fechar(config.valor));
+            areaBotoes.appendChild(botao);
+            return botao;
+        });
+
+        function aoPressionarTecla(evento) {
+            // só o modal mais acima reage ao teclado
+            const abertos = document.querySelectorAll(".modal_alerta_fundo");
+            if (abertos[abertos.length - 1] !== fundo) {
+                return;
+            }
+
+            if (evento.key === "Escape") {
+                evento.preventDefault();
+                fechar(valorAoDispensar);
+                return;
+            }
+
+            // mantém o foco dentro do modal
+            if (evento.key === "Tab") {
+                const primeiro = elementosBotao[0];
+                const ultimo = elementosBotao[elementosBotao.length - 1];
+
+                if (evento.shiftKey && document.activeElement === primeiro) {
+                    evento.preventDefault();
+                    ultimo.focus();
+                } else if (!evento.shiftKey && document.activeElement === ultimo) {
+                    evento.preventDefault();
+                    primeiro.focus();
+                }
+            }
+        }
+
+        // clicar fora da caixa fecha
+        fundo.addEventListener("click", (evento) => {
+            if (evento.target === fundo) {
+                fechar(valorAoDispensar);
+            }
+        });
+
+        document.addEventListener("keydown", aoPressionarTecla, true);
+
+        caixa.appendChild(icone);
+        caixa.appendChild(tituloElemento);
+        caixa.appendChild(mensagemElemento);
+        caixa.appendChild(areaBotoes);
+        fundo.appendChild(caixa);
+
+        document.body.appendChild(fundo);
+        document.body.style.overflow = "hidden";
+
+        const botaoPrimario = botoes.findIndex((config) => config.primario);
+        elementosBotao[botaoPrimario >= 0 ? botaoPrimario : 0].focus();
+    });
+}
+
+// substitui alert(): devolve uma Promise que resolve quando o modal fecha
+function mostrarModal(mensagem, opcoes = {}) {
+    const tipo = opcoes.tipo || "info";
+
+    return criarModalAlerta({
+        mensagem: mensagem,
+        tipo: tipo,
+        titulo: opcoes.titulo,
+        botoes: [{ texto: opcoes.textoBotao || "Entendi", valor: true, primario: true }],
+        valorAoDispensar: true,
+    });
+}
+
+// substitui confirm(): devolve uma Promise com true (confirmou) ou false (cancelou)
+function mostrarConfirmacao(mensagem, opcoes = {}) {
+    return criarModalAlerta({
+        mensagem: mensagem,
+        tipo: opcoes.tipo || "aviso",
+        titulo: opcoes.titulo,
+        botoes: [
+            { texto: opcoes.textoCancelar || "Cancelar", valor: false, primario: false },
+            { texto: opcoes.textoConfirmar || "Confirmar", valor: true, primario: true },
+        ],
+        valorAoDispensar: false,
+    });
+}
+
 // link "Denúncias" exige login
 document.querySelectorAll('a[href="painelcidadao.html"]').forEach((link) => {
     link.addEventListener("click", (evento) => {
         if (!localStorage.getItem("token")) {
             evento.preventDefault();
-            alert("Faça login para ver as denúncias.");
-            window.location.href = "login.html";
+            mostrarModal("Faça login para ver as denúncias.", {
+                tipo: "aviso",
+                titulo: "Login necessário",
+                textoBotao: "Ir para o login",
+            }).then(() => {
+                window.location.href = "login.html";
+            });
         }
     });
 });
@@ -438,7 +789,7 @@ if (formCadastro) {
         }
 
         if (!checkbox.checked) {
-            alert('Você precisa aceitar os termos!');
+            await mostrarModal('Você precisa aceitar os termos!', { tipo: 'aviso' });
             return;
         }
 
@@ -458,7 +809,7 @@ if (formCadastro) {
             }
 
             erroPref.textContent = '';
-            alert('Dados Inválidos!');
+            await mostrarModal('Dados Inválidos!', { tipo: 'erro' });
             return;
         }
 
@@ -469,17 +820,17 @@ if (formCadastro) {
         const confirmar = document.getElementById('confirm_senha').value;
 
         if (senha !== confirmar) {
-            alert('As senhas não são iguais');
+            await mostrarModal('As senhas não são iguais', { tipo: 'erro' });
             return;
         }
 
         if (senha.length < 6) {
-            alert('A senha deve conter pelo menos seis caracteres');
+            await mostrarModal('A senha deve conter pelo menos seis caracteres', { tipo: 'erro' });
             return;
         }
 
         if (cep.length !== 8) {
-            alert('O CEP deve conter 8 dígitos');
+            await mostrarModal('O CEP deve conter 8 dígitos', { tipo: 'erro' });
             return;
         }
 
@@ -492,10 +843,14 @@ if (formCadastro) {
         const dados = await resposta.json();
 
         if (resposta.ok) {
-            alert('Cadastro feito!');
+            await mostrarModal('Cadastro feito!', {
+                tipo: 'sucesso',
+                titulo: 'Conta criada',
+                textoBotao: 'Ir para o login',
+            });
             window.location.href = '/login.html';
         } else {
-            alert(dados.message);
+            await mostrarModal(dados.message, { tipo: 'erro' });
         }
     });
 }
@@ -520,7 +875,7 @@ if (formLogin) {
             const dados = await resposta.json();
 
             if (!resposta.ok) {
-                alert(dados.message);
+                await mostrarModal(dados.message, { tipo: 'erro', titulo: 'Não foi possível entrar' });
                 return;
             }
 
@@ -528,7 +883,7 @@ if (formLogin) {
             window.location.href = '/painelcidadao.html';
         } catch (erro) {
             console.error(erro);
-            alert('Erro ao conectar com o servidor.');
+            await mostrarModal('Erro ao conectar com o servidor.', { tipo: 'erro' });
         }
     });
 }
@@ -854,11 +1209,16 @@ if (botaoDelete) {
         const id = parametros.get("id");
 
         if (!id) {
-            alert("ID da ocorrência não encontrado.");
+            await mostrarModal("ID da ocorrência não encontrado.", { tipo: "erro" });
             return;
         }
 
-        const confirmar = confirm("Tem certeza que deseja excluir esta denúncia?");
+        const confirmar = await mostrarConfirmacao("Tem certeza que deseja excluir esta denúncia?", {
+            tipo: "aviso",
+            titulo: "Excluir denúncia",
+            textoConfirmar: "Excluir",
+            textoCancelar: "Cancelar",
+        });
 
         if (!confirmar) {
             return;
@@ -881,11 +1241,11 @@ if (botaoDelete) {
                 throw new Error(dados.message || "Erro ao excluir denúncia");
             }
 
-            alert("Denúncia excluída com sucesso!");
+            await mostrarModal("Denúncia excluída com sucesso!", { tipo: "sucesso" });
             window.location.href = "painelcidadao.html";
         } catch (erro) {
             console.error("Erro ao excluir denúncia:", erro);
-            alert("Não foi possível excluir a denúncia.");
+            await mostrarModal("Não foi possível excluir a denúncia.", { tipo: "erro" });
         }
     });
 }
@@ -935,8 +1295,9 @@ if (formEditar) {
     if (!localStorage.getItem("token")) {
         window.location.href = "/login.html";
     } else if (!idEditar) {
-        alert("Ocorrência não encontrada.");
-        window.location.href = "painelcidadao.html";
+        mostrarModal("Ocorrência não encontrada.", { tipo: "erro" }).then(() => {
+            window.location.href = "painelcidadao.html";
+        });
     } else {
         // preenche o formulário com os dados atuais
         fetch(`/problemas/${idEditar}`, {
@@ -969,9 +1330,9 @@ if (formEditar) {
                     `${problema.bairro}, ${problema.cidade} - ${problema.estado}`;
             })
 
-            .catch((erro) => {
+            .catch(async (erro) => {
                 console.error("Erro ao carregar ocorrência:", erro);
-                alert("Não foi possível carregar esta ocorrência.");
+                await mostrarModal("Não foi possível carregar esta ocorrência.", { tipo: "erro" });
                 window.location.href = "painelcidadao.html";
             });
 
@@ -983,7 +1344,7 @@ if (formEditar) {
 
             // cep é opcional, mas se vier precisa ter 8 dígitos
             if (cep !== "" && cep.length !== 8) {
-                alert("O CEP deve ter 8 dígitos");
+                await mostrarModal("O CEP deve ter 8 dígitos", { tipo: "erro" });
                 return;
             }
 
@@ -1010,17 +1371,16 @@ if (formEditar) {
                 const dados = await resposta.json();
 
                 if (!resposta.ok) {
-                    alert(Array.isArray(dados.message) ? dados.message[0] : dados.message);
+                    await mostrarModal(Array.isArray(dados.message) ? dados.message[0] : dados.message, { tipo: "erro" });
                     return;
                 }
 
-                alert("Denúncia atualizada com sucesso!");
+                await mostrarModal("Denúncia atualizada com sucesso!", { tipo: "sucesso" });
                 window.location.href = `ocorrencia.html?id=${idEditar}`;
             } catch (erro) {
                 console.error("Erro ao atualizar denúncia:", erro);
-                alert("Não foi possível atualizar a denúncia.");
+                await mostrarModal("Não foi possível atualizar a denúncia.", { tipo: "erro" });
             }
         });
     }
 }
-
