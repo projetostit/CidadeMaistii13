@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/styles.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=account_balance,apartment,arrow_back,campaign,check_circle,domain,engineering,mail,menu,person,photo_camera,save,sentiment_satisfied,speed,task_alt,trending_up,verified" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=account_balance,apartment,arrow_back,campaign,check_circle,domain,engineering,lock,mail,menu,password,person,photo_camera,save,sentiment_satisfied,speed,task_alt,trending_up,verified" />
     <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
 </head>
 <body>
@@ -86,6 +87,38 @@
                     <small class="dica_campo_perfil" id="dica_email">Usado para login e relatórios de demandas que você acompanha.</small>
                 </div>
 
+                <div class="grupo_campos_cadastrar">
+                    <label for="senha_atual">SENHA ATUAL</label>
+                        <span class="campo_icone_perfil">
+                        <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+                        <input type="password" id="senha_atual" name="senha_atual"
+                        autocomplete="current-password" aria-describedby="dica_senha_atual">
+                    </span>
+                    <small class="dica_campo_perfil" id="dica_senha_atual">Preencha apenas se quiser alterar a senha.</small>
+                </div>
+
+            <div class="linha_campos_perfil">
+                <div class="grupo_campos_cadastrar">
+                    <label for="senha">NOVA SENHA</label>
+                    <span class="campo_icone_perfil">
+                        <span class="material-symbols-outlined" aria-hidden="true">password</span>
+                        <input type="password" id="senha" name="senha" placeholder="Mínimo 6 caracteres"
+                            autocomplete="new-password" minlength="6" aria-describedby="dica_senha">
+                    </span>
+                    <small class="dica_campo_perfil" id="dica_senha">Use letras e números.</small>
+                </div>
+
+                <div class="grupo_campos_cadastrar">
+                    <label for="senha_confirma">CONFIRMAR NOVA SENHA</label>
+                    <span class="campo_icone_perfil">
+                        <span class="material-symbols-outlined" aria-hidden="true">password</span>
+                        <input type="password" id="senha_confirma" name="senha_confirma"
+                            autocomplete="new-password" aria-describedby="dica_senha_confirma">
+                    </span>
+                    <small class="dica_campo_perfil" id="dica_senha_confirma"></small>
+                </div>
+            </div>
+
                 <div class="linha_campos_perfil">
                     <div class="grupo_campos_cadastrar">
                         <label for="gestor">CEP *</label>
@@ -148,6 +181,6 @@
             </div>
         </div>
     </footer>
-    <script src="assets/script.js"></script>
+    
 </body>
 </html>

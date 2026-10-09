@@ -1,4 +1,11 @@
-import { IsEmail, IsNotEmpty, Length } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+  MinLength,
+} from 'class-validator';
 
 export class AtualizarPerfilDto {
   @IsNotEmpty()
@@ -12,4 +19,13 @@ export class AtualizarPerfilDto {
 
   @IsNotEmpty()
   complemento!: string;
+
+  @IsOptional()
+  @IsString()
+  senhaAtual?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(6)
+  novaSenha?: string;
 }

@@ -148,35 +148,70 @@ export class AuthService {
   }
 
 
-// UPDATE
-  async atualizarPerfil(cabecalho: string, dados: AtualizarPerfilDto) {
-    const id = await this.pegarIdDoToken(cabecalho);
+async atualizarPerfil(cabecalho: string, dados: AtualizarPerfilDto) {
+  const id = await this.pegarIdDoToken(cabecalho);
 
-    const [outros] = await this.db.query(
-      'SELECT id FROM cidadao WHERE email = ? AND id <> ?',
-      [dados.email, id],
-    );
+  const [outros] = await this.db.query(
+    'SELECT id FROM cidadao WHERE email = ? AND id <> ?',
+    [dados.email, id],
+  );
 
-    if ((outros as any[]).length > 0) {
-      throw new BadRequestException('Este e-mail já está em uso');
+  if ((outros as any[]).length > 0) {
+    throw new BadRequestException('Este e-mail já está em uso');
+  }
+
+  // troca de senha (opcional)
+  let novoHash: string | null = null;
+
+  if (dados.novaSenha) {
+    if (!dados.senhaAtual) {
+      throw new BadRequestException('Informe a senha atual');
     }
 
-    const endereco = await this.buscarCep(dados.cep);
-
-    await this.db.query(
-      'UPDATE cidadao SET nome = ?, email = ?, cep = ?, bairro = ?, cidade = ?, estado = ?, complemento = ? WHERE id = ?',
-      [
-        dados.nome,
-        dados.email,
-        dados.cep,
-        endereco.bairro,
-        endereco.localidade,
-        endereco.uf,
-        dados.complemento,
-        id,
-      ],
+    const [lista] = await this.db.query(
+      'SELECT senha_hash FROM cidadao WHERE id = ?',
+      [id],
     );
 
-    return { mensagem: 'Perfil atualizado!' };
+    const usuario = (lista as any[])[0];
+
+    if (!usuario) {
+      throw new UnauthorizedException('Usuário não encontrado');
+    }
+
+    const confere = await bcrypt.compare(dados.senhaAtual, usuario.senha_hash);
+
+    if (!confere) {
+      throw new BadRequestException('Senha atual incorreta');
+    }
+
+    novoHash = await bcrypt.hash(dados.novaSenha, 10);
   }
+
+  const endereco = await this.buscarCep(dados.cep);
+
+  await this.db.query(
+    `UPDATE cidadao
+     SET nome = ?, email = ?, cep = ?, bairro = ?, cidade = ?, estado = ?, complemento = ?,
+         senha_hash = COALESCE(?, senha_hash)
+     WHERE id = ?`,
+    [
+      dados.nome,
+      dados.email,
+      dados.cep,
+      endereco.bairro,
+      endereco.localidade,
+      endereco.uf,
+      dados.complemento,
+      novoHash, // null mantém a senha atual
+      id,
+    ],
+  );
+
+  return {
+    mensagem: novoHash ? 'Perfil e senha atualizados!' : 'Perfil atualizado!',
+  };
+}
+
+  
 }

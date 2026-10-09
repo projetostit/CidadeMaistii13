@@ -164,48 +164,88 @@ if (formPerfil) {
     }
 
     formPerfil.addEventListener("submit", async (evento) => {
-        evento.preventDefault();
+    evento.preventDefault();
 
-        if (!formPerfil.checkValidity()) {
-            formPerfil.reportValidity();
+    if (!formPerfil.checkValidity()) {
+        formPerfil.reportValidity();
+        return;
+    }
+
+    const cep = document.getElementById("gestor").value.replace(/\D/g, "");
+
+    if (cep.length !== 8) {
+        mensagemStatus.textContent = "O CEP deve ter 8 dígitos";
+        return;
+    }
+
+    // senha (opcional)
+    const senhaAtual = document.getElementById("senha_atual").value;
+    const novaSenha = document.getElementById("senha").value;
+    const confirmarSenha = document.getElementById("senha_confirma").value;
+    const trocandoSenha = senhaAtual !== "" || novaSenha !== "" || confirmarSenha !== "";
+
+    if (trocandoSenha) {
+        if (!senhaAtual) {
+            mensagemStatus.textContent = "Informe a senha atual";
             return;
         }
-
-        const cep = document.getElementById("gestor").value.replace(/\D/g, "");
-
-        if (cep.length !== 8) {
-            mensagemStatus.textContent = "O CEP deve ter 8 dígitos";
+        if (novaSenha.length < 6) {
+            mensagemStatus.textContent = "A nova senha deve ter pelo menos 6 caracteres";
             return;
         }
-
-        const token = localStorage.getItem("token");
-
-        const resposta = await fetch("/perfil", {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: "Bearer " + token,
-            },
-            body: JSON.stringify({
-                nome: document.getElementById("orgao").value.trim(),
-                email: document.getElementById("email_institucional").value.trim(),
-                cep: cep,
-                complemento: document.getElementById("cidade").value.trim(),
-            }),
-        });
-
-        const dados = await resposta.json();
-
-        if (!resposta.ok) {
-            mensagemStatus.textContent = Array.isArray(dados.message)
-                ? dados.message[0]
-                : dados.message;
+        if (novaSenha !== confirmarSenha) {
+            mensagemStatus.textContent = "As senhas não são iguais";
             return;
         }
+        if (novaSenha === senhaAtual) {
+            mensagemStatus.textContent = "A nova senha deve ser diferente da atual";
+            return;
+        }
+    }
 
-        await carregarPerfil();
-        mensagemStatus.textContent = "Alterações salvas.";
+    const corpo = {
+        nome: document.getElementById("orgao").value.trim(),
+        email: document.getElementById("email_institucional").value.trim(),
+        cep: cep,
+        complemento: document.getElementById("cidade").value.trim(),
+    };
+
+    if (trocandoSenha) {
+        corpo.senhaAtual = senhaAtual;   // não use trim() em senhas
+        corpo.novaSenha = novaSenha;
+    }
+
+    const token = localStorage.getItem("token");
+
+    const resposta = await fetch("/perfil", {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify(corpo),
     });
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+        mensagemStatus.textContent = Array.isArray(dados.message)
+            ? dados.message[0]
+            : dados.message;
+        return;
+    }
+
+    // limpa os campos de senha antes de recarregar, senão o botão
+    // "Salvar" continua habilitado com os valores antigos
+    ["senha_atual", "senha", "senha_confirma"].forEach((id) => {
+        document.getElementById(id).value = "";
+    });
+
+    await carregarPerfil();
+    mensagemStatus.textContent = trocandoSenha
+        ? "Dados e senha atualizados."
+        : "Alterações salvas.";
+});
 
     atualizarBotoes();
 }
@@ -953,3 +993,4 @@ if (formEditar) {
         });
     }
 }
+
