@@ -120,6 +120,29 @@ if (formPerfil) {
 
     let valoresSalvos = campos.map((campo) => campo.value);
 
+    const inputNovaSenhaPerfil = document.getElementById("senha");
+    const inputConfirmaPerfil = document.getElementById("senha_confirma");
+    const erroConfirmaPerfil = document.getElementById("erro_senha_perfil");
+
+    function conferirSenhasPerfil() {
+        if (inputConfirmaPerfil.value === "") {
+            inputConfirmaPerfil.classList.remove("campo_erro");
+            erroConfirmaPerfil.textContent = "";
+            return;
+        }
+
+        if (inputNovaSenhaPerfil.value !== inputConfirmaPerfil.value) {
+            inputConfirmaPerfil.classList.add("campo_erro");
+            erroConfirmaPerfil.textContent = "As senhas não são iguais";
+        } else {
+            inputConfirmaPerfil.classList.remove("campo_erro");
+            erroConfirmaPerfil.textContent = "";
+        }
+    }
+
+    inputNovaSenhaPerfil.addEventListener("input", conferirSenhasPerfil);
+    inputConfirmaPerfil.addEventListener("input", conferirSenhasPerfil);
+
     function atualizarBotoes() {
         const houveMudanca = campos.some((campo, i) => {
             return campo.value.trim() !== valoresSalvos[i];
@@ -150,18 +173,21 @@ if (formPerfil) {
     });
 
     if (btnDescartar) {
-        btnDescartar.addEventListener("click", () => {
-            campos.forEach((campo, i) => {
-                campo.value = valoresSalvos[i];
-            });
-
-            if (mensagemStatus) {
-                mensagemStatus.textContent = "";
-            }
-
-            atualizarBotoes();
+    btnDescartar.addEventListener("click", () => {
+        campos.forEach((campo, i) => {
+            campo.value = valoresSalvos[i];
         });
-    }
+
+        inputConfirmaPerfil.classList.remove("campo_erro");
+        erroConfirmaPerfil.textContent = "";
+
+        if (mensagemStatus) {
+            mensagemStatus.textContent = "";
+        }
+
+        atualizarBotoes();
+    });
+}
 
     formPerfil.addEventListener("submit", async (evento) => {
     evento.preventDefault();
@@ -170,6 +196,10 @@ if (formPerfil) {
         formPerfil.reportValidity();
         return;
     }
+
+    if (inputConfirmaPerfil.classList.contains("campo_erro")) {
+    return;
+}
 
     const cep = document.getElementById("gestor").value.replace(/\D/g, "");
 
@@ -182,7 +212,7 @@ if (formPerfil) {
     const senhaAtual = document.getElementById("senha_atual").value;
     const novaSenha = document.getElementById("senha").value;
     const confirmarSenha = document.getElementById("senha_confirma").value;
-    const trocandoSenha = senhaAtual !== "" || novaSenha !== "" || confirmarSenha !== "";
+    const trocandoSenha = novaSenha !== "" || confirmarSenha !== "";
 
     if (trocandoSenha) {
         if (!senhaAtual) {

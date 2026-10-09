@@ -1621,6 +1621,14 @@ footer p {
     font-weight: 900;
 }
 
+.erro_campo_perfil {
+    display: block;
+    min-height: 1.2em;
+    margin-top: 4px;
+    font-size: 0.8rem;
+    color: #c0392b;
+}
+
 .avatar_prefeitura .selo_avatar_prefeitura {
     position: absolute;
     right: -8px;
