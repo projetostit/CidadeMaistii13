@@ -211,7 +211,7 @@ if (formPerfil) {
     };
 
     if (trocandoSenha) {
-        corpo.senhaAtual = senhaAtual;   // não use trim() em senhas
+        corpo.senhaAtual = senhaAtual;
         corpo.novaSenha = novaSenha;
     }
 
