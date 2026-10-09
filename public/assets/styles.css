@@ -2669,12 +2669,9 @@ footer p {
 }
 
 
-/* ==========================================
-   CSS DA TELA DE EDITAR OCORRÊNCIA
-   ========================================== */
 
 .pag_normal {
-    padding-top: 100px;
+    padding-top: 10px;
     padding-bottom: 60px;
     background-color: #F8FAFC;
     min-height: 100vh;
